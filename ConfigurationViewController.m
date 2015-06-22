@@ -7,8 +7,9 @@
 //
 
 #import "ConfigurationViewController.h"
-
+#import "RestaurantListViewController.h"
 @interface ConfigurationViewController ()
+@property (weak, nonatomic) IBOutlet UITableView *tableView;
 
 @end
 
@@ -32,12 +33,22 @@
     
 }
 
+#pragma mark - Private methods
+
 -(void)pressCancelBtn {
     NSLog(@"Eh up, someone just pressed the Cancel button!");
+    [self dismissViewControllerAnimated:YES completion:nil];
+//    RestaurantListViewController *rvc = [[RestaurantListViewController alloc] init];
+//    UINavigationController *nvc = [[UINavigationController alloc] initWithRootViewController:rvc];
+//    [self presentViewController:nvc animated:YES completion:nil];
 }
 
 -(void)pressSearchBtn {
     NSLog(@"Eh up, someone just pressed the Search button!");
+    [self dismissViewControllerAnimated:YES completion:nil];
+//    RestaurantListViewController *rvc = [[RestaurantListViewController alloc] init];
+//    UINavigationController *nvc = [[UINavigationController alloc] initWithRootViewController:rvc];
+//    [self presentViewController:nvc animated:YES completion:nil];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -45,14 +56,5 @@
     // Dispose of any resources that can be recreated.
 }
 
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
 
 @end

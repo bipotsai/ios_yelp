@@ -8,7 +8,7 @@
 
 #import "ViewController.h"
 
-
+#import <UIImageView+AFNetworking.h>
 @interface ViewController ()
 
 @end
@@ -18,9 +18,16 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    UISearchBar *searchBar = [UISearchBar new];
-    [searchBar sizeToFit];
-    self.navigationItem.titleView = searchBar;
+//    self.nameLabel.text = self.restaurant[@"name"];
+//    self.distanceLabel.text = self.restaurant[@"distance"];
+//    NSString *postURLString = self.restaurant [@"image_url"];
+//    //postURLString = [self convertPosterUrlStringToHighRes:postURLString];
+//    [self.image setImageWithURL:[NSURL URLWithString:postURLString]];
+    
+    
+//    UISearchBar *searchBar = [UISearchBar new];
+//    [searchBar sizeToFit];
+//    self.navigationItem.titleView = searchBar;
    
     //UIView *barWrapper = [[UIView alloc]initWithFrame:CGRectMake(0, 55, 0, 0)];
     //[barWrapper addSubview:searchBar];

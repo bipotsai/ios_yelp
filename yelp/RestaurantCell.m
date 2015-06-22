@@ -20,4 +20,13 @@
     // Configure the view for the selected state
 }
 
+- (void)prepareForReuse{
+    [super prepareForReuse];
+    NSLog(@"prepareForReuse");
+    self.nameLabel.text = @"name la";
+    self.distanceLabel.text = @"distance la";
+    self.image.image = nil;
+}
+
+
 @end
