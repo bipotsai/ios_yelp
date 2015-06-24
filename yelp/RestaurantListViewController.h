@@ -7,7 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "ConfigurationViewController.h"
 
-@interface RestaurantListViewController : UIViewController
+@interface RestaurantListViewController : UIViewController <ConfigurationViewControllerDelegate>
 
 @end

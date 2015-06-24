@@ -20,7 +20,15 @@
     // Configure the view for the selected state
 }
 
+- (void) setOn:(BOOL)on {
+    [self setOn:on animated:NO];
+}
+- (void) setOn:(BOOL)on animated:(BOOL)animated{
+    _on = on;
+    [self.toggleSwitch setOn:on animated:animated];
+}
+
 - (IBAction)didUpdatedValue:(id)sender {
-    
+    [self.delegate switchCell:self didUpdateValue:self.toggleSwitch.on];
 }
 @end
