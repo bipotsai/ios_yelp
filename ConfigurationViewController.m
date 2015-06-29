@@ -8,29 +8,25 @@
 
 #import "ConfigurationViewController.h"
 #import "SwitchCell.h"
-
+#import "CheckCell.h"
 
 
 @interface ConfigurationViewController ()<UITableViewDataSource, UITableViewDelegate, SwitchCellDelegate>{
 }
 
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
-@property (strong, nonatomic) NSArray *categories;
+
 @property (nonatomic, strong) NSMutableSet *selectedCatories;
 @property (nonatomic, readonly) NSDictionary *filters;
+@property (nonatomic, strong) NSArray *configsSectionTitles;
+@property (nonatomic, strong) NSMutableArray *configsSectionExpanded;
+@property (strong, nonatomic) NSArray *categories;
+@property (nonatomic, strong) NSArray *sortModes;
+@property (nonatomic, strong) NSArray *distances;
+
 @end
 
 @implementation ConfigurationViewController
-
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil{
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    
-    if(self){
-        self.selectedCatories = [NSMutableSet set];
-         [self initCategories];
-    }
-    return self;
-}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -44,8 +40,10 @@
 
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
+
+    
     self.selectedCatories = [NSMutableSet set];
-    [self initCategories];
+    [self initConfiguration];
 
     
   
@@ -58,11 +56,27 @@
     NSLog(@"loadView");
 }
 
--(void)initCategories {
+-(void)initConfiguration {
     self.categories = @[@{@"name" : @"Lounges", @"code":@"lounges"},
                         @{@"name" : @"Pubs", @"code":@"pubs"},
                         @{@"name" : @"Sports Bars", @"code":@"sportsbars"},
                         @{@"name" : @"Wine Bars", @"code":@"wine_bars"}];
+    self.sortModes =
+    @[
+      @{@"name" : @"Best Match", @"value" : @0},
+      @{@"name" : @"Closest", @"value" : @1},
+      @{@"name" : @"Highest rated", @"value" : @2}
+      ];
+    self.distances =
+    @[
+      @{@"name" : @"Auto", @"value" : @0},
+      @{@"name" : @"100 m", @"value" : @100},
+      @{@"name" : @"1 km", @"value" : @1000},
+      @{@"name" : @"5 kms", @"value" : @5000},
+      @{@"name" : @"10 kms", @"value" : @10000},
+      ];
+    self.configsSectionTitles = @[@"deals",@"sortModes",@"distance",@"categories"];
+    self.configsSectionExpanded = [ [ NSMutableArray alloc ] initWithObjects:@NO,@NO,@NO,@NO,nil];
 
 }
 
@@ -108,18 +122,125 @@
     // Dispose of any resources that can be recreated.
 }
 
-- (NSInteger)tableView:(UITableView *)tableView  numberOfRowsInSection:(NSInteger)section{
-    return self.categories.count;
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    // Return the number of sections.
+    return [self.configsSectionTitles count];
 }
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
-    SwitchCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MySwitchCell" forIndexPath:indexPath];
-    cell.nameLabel.text = self.categories[indexPath.row][@"name"];
-    cell.on = [self.selectedCatories containsObject:self.categories[indexPath.row]];
-    cell.delegate = self;
+#pragma mark - Table view delegate methods
 
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    [tableView deselectRowAtIndexPath:indexPath animated:NO];
     
-    return cell;
+    NSInteger section = indexPath.section;
+    NSInteger row = indexPath.row;
+    NSLog(@"section : %ld %@",(long)section, self.configsSectionExpanded[section]);
+    if ( self.configsSectionExpanded[section] == NO) {
+        self.configsSectionExpanded[section] = @YES;
+        [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:indexPath.section] withRowAnimation:UITableViewRowAnimationFade];
+    }else{
+        self.configsSectionExpanded[section]= @1;
+        [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:(NSUInteger) section]
+                      withRowAnimation:UITableViewRowAnimationAutomatic];
+    }
+    
+}
+
+
+#pragma mark - Table view data source methods
+
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+    switch (section) {
+        case 0:
+            return @"Offering Deals";
+        case 1:
+            return @"Sort By";
+        case 2:
+            return @"Distance";
+        case 3:
+            return @"Categories";  // only restaurants for the moment
+        default:
+            return @"Nothing";
+    }
+}
+
+
+- (NSInteger)tableView:(UITableView *)tableView  numberOfRowsInSection:(NSInteger)section{
+    switch (section) {
+        case 0:
+            return 1;
+        case 1:
+            if (self.configsSectionExpanded[section]) {
+               return self.sortModes.count;
+            }else{
+               return 1;
+            }
+        case 2:
+            if (self.configsSectionExpanded[section]) {
+            return self.distances.count;
+            }else{
+                return 1;
+            }
+        case 3:
+
+            return self.categories.count;
+
+        default:
+            return 0;
+    }
+
+}
+
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    CheckCell *checkcell = [tableView dequeueReusableCellWithIdentifier:@"MyCheckCell"];
+    SwitchCell *switchcell = [tableView dequeueReusableCellWithIdentifier:@"MySwitchCell"];
+    
+    NSInteger section = indexPath.section;
+    NSInteger row = indexPath.row;
+    switch (section) {
+        case 0:
+            NSLog(@"Offering a Deal");
+            switchcell.nameLabel.text = @"Offering a Deal";
+            switchcell.accessoryType = UITableViewCellAccessoryNone;
+            switchcell.delegate = self;
+            return switchcell;
+        case 1:
+            NSLog(@"sortModes");
+            checkcell.accessoryView = nil;
+            checkcell.accessoryType = UITableViewCellAccessoryNone;
+            //if (self.configsSectionExpanded[section]) {
+                checkcell.nameLabel.text = self.sortModes[indexPath.row][@"name"];
+            //}else{
+            //    checkcell.accessoryView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"drop25"]];
+            //}
+            return checkcell;
+        case 2:
+            NSLog(@"distances");
+            checkcell.accessoryView = nil;
+            checkcell.accessoryType = UITableViewCellAccessoryNone;
+            //if (self.configsSectionExpanded[section]) {
+                checkcell.nameLabel.text = self.distances[indexPath.row][@"name"];
+            //}else{
+            //    checkcell.accessoryView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"drop25"]];
+            //}
+            return checkcell;
+        case 3:
+            NSLog(@"categories");
+            //if (self.configsSectionExpanded[section]) {
+            switchcell.nameLabel.text = self.categories[indexPath.row][@"name"];
+            switchcell.on = [self.selectedCatories containsObject:self.categories[indexPath.row]];
+            switchcell.delegate = self;
+            //}else{
+            //    switchcell.accessoryView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"drop25"]];
+            //}
+            return switchcell;
+        default:
+            return nil;
+
+    }
 }
 
 @end
